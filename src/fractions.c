@@ -20,18 +20,6 @@ const struct fraction ONE_FRACTION_ = {
     .denominator = 1ULL
 };
 
-/*** Error Handling ***/
-
-void fraction_errno_set(enum fraction_err err)
-{
-    fraction_errno = err;
-}
-
-enum fraction_err fraction_errno_get()
-{
-    return fraction_errno;
-}
-
 /*** Constructors and Destructors ***/
 
 void fraction_destroy(struct fraction *f)
@@ -98,6 +86,18 @@ void fraction_reduce(struct fraction *f)
     f->denominator = f->denominator / gcd;
 }
 
+/*** Error Handling ***/
+
+void fraction_errno_set(enum fraction_err err)
+{
+    fraction_errno = err;
+}
+
+enum fraction_err fraction_errno_get()
+{
+    return fraction_errno;
+}
+
 /*** Mathematical Operations ***/
 
 int fraction_sum(struct fraction *res, const struct fraction *a, const struct fraction *b)
@@ -134,12 +134,15 @@ int fraction_multiply(struct fraction *res, const struct fraction *a, const stru
 
 /*** Type Casting ***/
 
-char *fraction_tostr(const struct fraction *f, char *sep)
+char *fraction_to_str(const struct fraction *f, char *sep)
 {
     static ssize_t ullint_aschar_size = -1;
 
     char *fstr;
     size_t size;
+
+    if (!sep)
+        sep = DEFAULT_SEP;
 
     /* caching */
     if (ullint_aschar_size == -1) {
@@ -159,11 +162,14 @@ char *fraction_tostr(const struct fraction *f, char *sep)
     return fstr;
 }
 
-int fraction_fromstr(struct fraction *f, char *sep, char *str)
+int fraction_from_str(struct fraction *f, char *str, char *sep)
 {
     llint numerator;
     ullint denominator;
     int err;
+
+    if (!sep)
+        sep = DEFAULT_SEP;
 
     errno = 0;
     numerator = strtoll(str, NULL, 10);
@@ -187,6 +193,57 @@ int fraction_fromstr(struct fraction *f, char *sep, char *str)
     err = fraction_set(f, numerator, denominator);
     if (err < 0)
         return -1;
+
+    return 0;
+}
+
+llint fraction_to_llint(const struct fraction *f)
+{
+    return f->numerator / f->denominator;
+}
+
+int fraction_from_llint(struct fraction *f, llint number)
+{
+    return fraction_set(f, number, 1);
+}
+
+double fraction_to_double(const struct fraction *f)
+{
+    return (double)(f->numerator) / (double)(f->denominator);
+}
+
+int fraction_from_double(struct fraction *f, double value)
+{
+    int sign = 1;
+
+    if (value < 0) {
+        sign = -1;
+        value = -value;
+    }
+
+    if (value > (double)LLINT_MAX) {
+        fraction_errno_set(FRAC_OVERFLOW);
+        return -1;
+    }
+
+    f->numerator = (llint)(floor(value));
+    f->denominator = 1;
+    value -= (double)(f->numerator);
+
+    while (value > 0) {
+        int units_digit;
+
+        value *= 2;
+        units_digit = (llint)(floor(value));
+        value -= (double)(units_digit);
+
+        f->denominator <<= 1;
+        f->numerator = (f->numerator << 1) + units_digit;
+    }
+
+    f->numerator *= sign;
+
+    fraction_reduce(f);
 
     return 0;
 }

@@ -5,13 +5,18 @@
 int main()
 {
     struct fraction *f;
+    double value;
 
-    f = fraction_create(10, 10);
+    f = fraction_clone(ZERO_FRACTION);
 
-    {
-        char *str = fraction_tostr(f, "/");
-        printf("%s\n", str);
-        free(str);
+    fraction_from_str(f, "9/40", NULL);
+    value = fraction_to_double(f);
+    fraction_from_double(f, value);
+
+    if (1) {
+        char *fstr = fraction_to_str(f, NULL);
+        printf("%s\n", fstr);
+        free(fstr);
     }
 
     fraction_destroy(f);

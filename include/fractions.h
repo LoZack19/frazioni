@@ -3,6 +3,8 @@
 
 #include <include/utils.h>
 
+#define DEFAULT_SEP     "/"
+
 #define ZERO_FRAC_NUM   (0LL)
 #define ZERO_FRAC_DEN   (1ULL)
 #define ZERO_FRACTION   (&ZERO_FRACTION_)
@@ -17,7 +19,8 @@ enum fraction_err {
     FRAC_SUCCESS = 0,
     FRAC_DIV_0,
     FRAC_LIBC_ERR,
-    FRAC_FORMAT_ERR
+    FRAC_FORMAT_ERR,
+    FRAC_OVERFLOW
 };
 
 /*** Module Global Data ***/
@@ -45,7 +48,13 @@ int fraction_sum(struct fraction *res, const struct fraction *a, const struct fr
 int fraction_multiply(struct fraction *res, const struct fraction *a, const struct fraction *b);
 
 /*** Type Cast Functions ***/
-char *fraction_tostr(const struct fraction *f, char *sep);
-int fraction_fromstr(struct fraction *f, char *sep, char *str);
+char *fraction_to_str(const struct fraction *f, char *sep);
+int fraction_from_str(struct fraction *f, char *str, char *sep);
+
+llint fraction_to_llint(const struct fraction *f);
+int fraction_from_llint(struct fraction *f, llint number);
+
+double fraction_to_double(const struct fraction *f);
+int fraction_from_double(struct fraction *f, double value);
 
 #endif
