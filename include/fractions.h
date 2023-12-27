@@ -1,8 +1,12 @@
-typedef unsigned long long ullint;
-typedef long long llint;
+#ifndef FRACTIONS_H
+#define FRACTIONS_H
 
-#define ULLINT_MAX ~0ULL
-#define LLINT_MAX ~0ULL >> 1
+#include <include/utils.h>
+
+#define ZERO_FRAC_NUM   (0LL)
+#define ZERO_FRAC_DEN   (1ULL)
+#define ZERO_FRACTION   (&ZERO_FRACTION_)
+#define ONE_FRACTION    (&ONE_FRACTION_)
 
 struct fraction {
     llint numerator;
@@ -13,20 +17,35 @@ enum fraction_err {
     FRAC_SUCCESS = 0,
     FRAC_DIV_0,
     FRAC_LIBC_ERR,
+    FRAC_FORMAT_ERR
 };
 
-int greatest_common_divisor(ullint a, ullint b);
-ullint lowest_common_multiplier(ullint a, ullint b);
-llint llcopysign(llint x, llint y);
-int signof(llint a);
+/*** Module Global Data ***/
+extern const struct fraction ZERO_FRACTION_;
+extern const struct fraction ONE_FRACTION_;
 
+/*** Constructors and Destructors ***/
+struct fraction *fraction_create(llint numerator, ullint denominator);
+struct fraction *fraction_clone(const struct fraction *f);
+void fraction_destroy(struct fraction *f);
+
+/*** Setters and Getters ***/
+int fraction_set(struct fraction *f, llint numerator, ullint denominator);
+int fraction_copy(struct fraction *dest, const struct fraction *src);
+
+/*** Data Canonization Functions ***/
+void fraction_reduce(struct fraction *f);
+
+/*** Error Handling Functions ***/
 void fraction_errno_set(enum fraction_err err);
 enum fraction_err fraction_errno_get();
 
-struct fraction *fraction_create(llint numerator, ullint denominator);
-void fraction_destroy(struct fraction *f);
-int fraction_set(struct fraction *f, llint numerator, ullint denominator);
-void fraction_reduce(struct fraction *f);
-int fraction_sum(struct fraction *res, struct fraction *a, struct fraction *b);
-int fraction_multiply(struct fraction *res, struct fraction *a, struct fraction *b);
-char *fraction_str(struct fraction *f, char *sep);
+/*** Mathematical Operations ***/
+int fraction_sum(struct fraction *res, const struct fraction *a, const struct fraction *b);
+int fraction_multiply(struct fraction *res, const struct fraction *a, const struct fraction *b);
+
+/*** Type Cast Functions ***/
+char *fraction_tostr(const struct fraction *f, char *sep);
+int fraction_fromstr(struct fraction *f, char *sep, char *str);
+
+#endif
