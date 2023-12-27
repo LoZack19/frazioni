@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "fractions.h": "c",
+        "utils.h": "c"
+    }
+}

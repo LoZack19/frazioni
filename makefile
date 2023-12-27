@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -I./
+CFLAGS = -Wall -Wextra -I./ -g
 LDFLAGS = -lm
 
 SRC_DIR = src
@@ -21,4 +21,7 @@ $(EXECUTABLE): $(OBJS)
 clean:
 	rm -rf $(EXECUTABLE) $(OBJS)
 
-.PHONY: all clean
+run:
+	./$(EXECUTABLE)
+
+.PHONY: all clean run
