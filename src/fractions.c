@@ -100,6 +100,29 @@ enum fraction_err fraction_errno_get()
 
 /*** Mathematical Operations ***/
 
+int fraction_negate(struct fraction *res, const struct fraction *f)
+{
+    int err;
+
+    err = fraction_copy(res, f);
+    if (err < 0)
+        return err;
+    
+    res->numerator = -res->numerator;
+
+    return 0;
+}
+
+int fraction_reciprocate(struct fraction *res, const struct fraction *f)
+{
+    if (f->denominator > (ullint)(LLINT_MAX)) {
+        fraction_errno_set(FRAC_OVERFLOW);
+        return -1;
+    }
+
+    return fraction_set(res, llcopysign(f->denominator, f->numerator), abs(f->numerator));
+}
+
 int fraction_sum(struct fraction *res, const struct fraction *a, const struct fraction *b)
 {
     llint denominator;
@@ -130,6 +153,30 @@ int fraction_multiply(struct fraction *res, const struct fraction *a, const stru
     res->denominator = across.denominator * bcross.denominator;
 
     return 0;
+}
+
+int fraction_subtract(struct fraction *res, const struct fraction *minuend, const struct fraction *subtrahend)
+{
+    struct fraction temp;
+    int err;
+
+    err = fraction_negate(&temp, subtrahend);
+    if (err < 0)
+        return err;
+    
+    return fraction_sum(res, minuend, &temp);
+}
+
+int fraction_divide(struct fraction *res, const struct fraction *dividend, const struct fraction *divisor)
+{
+    struct fraction temp;
+    int err;
+
+    err = fraction_reciprocate(&temp, divisor);
+    if (err < 0)
+        return err;
+    
+    return fraction_multiply(res, dividend, &temp);
 }
 
 /*** Type Casting ***/

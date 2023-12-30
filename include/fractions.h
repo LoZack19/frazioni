@@ -44,8 +44,12 @@ void fraction_errno_set(enum fraction_err err);
 enum fraction_err fraction_errno_get();
 
 /*** Mathematical Operations ***/
+int fraction_negate(struct fraction *res, const struct fraction *f);
+int fraction_reciprocate(struct fraction *res, const struct fraction *f);
 int fraction_sum(struct fraction *res, const struct fraction *a, const struct fraction *b);
 int fraction_multiply(struct fraction *res, const struct fraction *a, const struct fraction *b);
+int fraction_subtract(struct fraction *res, const struct fraction *minuend, const struct fraction *subtrahend);
+int fraction_divide(struct fraction *res, const struct fraction *dividend, const struct fraction *divisor);
 
 /*** Type Cast Functions ***/
 char *fraction_to_str(const struct fraction *f, char *sep);
