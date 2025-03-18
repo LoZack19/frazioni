@@ -120,7 +120,7 @@ int fraction_reciprocate(struct fraction *res, const struct fraction *f)
         return -1;
     }
 
-    return fraction_set(res, llcopysign(f->denominator, f->numerator), abs(f->numerator));
+    return fraction_set(res, llcopysign(f->denominator, f->numerator), labs(f->numerator));
 }
 
 int fraction_sum(struct fraction *res, const struct fraction *a, const struct fraction *b)
